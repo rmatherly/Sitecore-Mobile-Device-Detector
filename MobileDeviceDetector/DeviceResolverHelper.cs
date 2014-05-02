@@ -104,7 +104,12 @@ namespace Sitecore.SharedSource.MobileDeviceDetector
     /// <returns>Resolved device</returns>
     private static DeviceItem GetRulesDevice(Database database)
     {
-      DeviceItem[] all = database.Resources.Devices.GetAll();
+	  const string defaultLanguageName = "en";
+
+	  var savedLanguage = Context.Language;
+	  if (savedLanguage.Name != defaultLanguageName)
+		  Context.Language = LanguageManager.GetLanguage(defaultLanguageName);
+		DeviceItem[] all = database.Resources.Devices.GetAll();
 
       foreach (var device in all)
       {
@@ -124,12 +129,18 @@ namespace Sitecore.SharedSource.MobileDeviceDetector
             }
             if ((stack.Count != 0) && ((bool)stack.Pop()))
             {
+              if (savedLanguage.Name != defaultLanguageName)
+		            Context.Language = savedLanguage;
+		            
               return device;
             }
           }
         }
       }
 
+      if (savedLanguage.Name != defaultLanguageName)
+		    Context.Language = savedLanguage;
+		
       return null;
     }
 
